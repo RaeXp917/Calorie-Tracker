@@ -4,7 +4,6 @@ An app that uses the phone’s camera to scan food products for calories, sugars
 kotlin (java 17)
 
 cameraX
-<<<<<<< Updated upstream
 
 material3 
 
