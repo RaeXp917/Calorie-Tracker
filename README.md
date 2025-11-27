@@ -21,7 +21,6 @@ maybe if at some point gonna have database... mongo db (i need 2 learn that) if 
 =======
 
 material3
->>>>>>> Stashed changes
 
 OpenFoodFacts
 
