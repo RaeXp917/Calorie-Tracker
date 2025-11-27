@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -50,6 +53,39 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+
+    // 1. Navigation (To move between screens)
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    // 2. CameraX (For scanning)
+    val cameraxVersion = "1.3.2"
+    implementation("androidx.camera:camera-core:${cameraxVersion}")
+    implementation("androidx.camera:camera-camera2:${cameraxVersion}")
+    implementation("androidx.camera:camera-lifecycle:${cameraxVersion}")
+    implementation("androidx.camera:camera-view:${cameraxVersion}")
+
+    // 3. ML Kit (Google's brain for reading Barcodes)
+    implementation("com.google.mlkit:barcode-scanning:17.2.0")
+
+    // 4. Hilt (For Dependency Injection - connecting files)
+    implementation("com.google.dagger:hilt-android:2.51")
+    kapt("com.google.dagger:hilt-android-compiler:2.51")
+
+    // 5. Lottie (For the fancy animations)
+    implementation("com.airbnb.android:lottie-compose:6.4.0")
+
+    // 6. Retrofit (For internet calls to get food info)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // Add this for AI Image Recognition (Apple, Banana, etc.)
+    implementation("com.google.mlkit:image-labeling:17.0.7")
+
+
+
+
+
+// test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
