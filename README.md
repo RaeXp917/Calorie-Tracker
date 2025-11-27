@@ -14,6 +14,7 @@ Image Recognition (AI): We can use Google ML Kit (Image Labeling) to try and gue
 maybe if at some point gonna have database... mongo db (i need 2 learn that) if we somehow found solution for not use database thats gud
 
 ====
+
 // logic for the app or how are we gonna work on
 
 
