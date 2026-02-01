@@ -9,9 +9,7 @@ plugins {
 
 android {
     namespace = "com.example.calorie_tracker"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.calorie_tracker"
@@ -59,10 +57,10 @@ dependencies {
 
     // 2. CameraX (For scanning)
     val cameraxVersion = "1.3.2"
-    implementation("androidx.camera:camera-core:${cameraxVersion}")
-    implementation("androidx.camera:camera-camera2:${cameraxVersion}")
-    implementation("androidx.camera:camera-lifecycle:${cameraxVersion}")
-    implementation("androidx.camera:camera-view:${cameraxVersion}")
+    implementation("androidx.camera:camera-core:$cameraxVersion")
+    implementation("androidx.camera:camera-camera2:$cameraxVersion")
+    implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
+    implementation("androidx.camera:camera-view:$cameraxVersion")
 
     // 3. ML Kit (Google's brain for reading Barcodes)
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
@@ -71,21 +69,27 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.51")
     kapt("com.google.dagger:hilt-android-compiler:2.51")
 
-    // 5. Lottie (For the fancy animations)
-    implementation("com.airbnb.android:lottie-compose:6.4.0")
+    // 5. Hilt navigation compose
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // 6. Retrofit (For internet calls to get food info)
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
-    // Add this for AI Image Recognition (Apple, Banana, etc.)
+    // 7. Lottie (For the fancy animations)
+    implementation("com.airbnb.android:lottie-compose:6.4.0")
+
+    // 8. ML Kit Image Labeling (Apple, Banana, etc.)
     implementation("com.google.mlkit:image-labeling:17.0.7")
 
+    // 9. Material Design Icons Extended
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
 
+    // 10. AppCompat (For Locale support)
+    implementation("androidx.appcompat:appcompat:1.6.1")
 
-
-
-// test
+    // Test dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
