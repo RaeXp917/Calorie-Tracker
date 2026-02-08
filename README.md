@@ -29,8 +29,6 @@ so json formating  as an array? or an object? idk yet we may doo it as Any?
 
 **WHEN AND IF ITS REALEASED**
 
-Fair 😄 here’s the actual TL;DR:
-
 Yes, it’s legal. Yes, it’s free. Even with ads.
 
 What you can do:
