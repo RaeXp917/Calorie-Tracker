@@ -107,6 +107,9 @@ dependencies {
     // Use the Play Services version (Better, smaller app size, auto-updates)
     implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
 
+    // Allows using .await() on ML Kit tasks instead of listeners
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+
     // Test dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -41,9 +41,10 @@ fun ScanScreen(
 ) {
     val context = LocalContext.current
     val imageCapture = remember { ImageCapture.Builder().build() }
+
+    // Zoom State
     var zoomRatio by remember { mutableFloatStateOf(1f) }
 
-    // Permission State
     var hasCameraPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
@@ -81,16 +82,17 @@ fun ScanScreen(
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             if (hasCameraPermission) {
+                // 1. Camera Preview with Zoom
                 CameraPreview(
                     modifier = Modifier.fillMaxSize(),
                     imageCapture = imageCapture,
+                    zoomRatio = zoomRatio,
                     analyzer = if (viewModel.scanMode == ScanMode.BARCODE) {
                         BarcodeAnalyzer { code -> viewModel.onBarcodeDetected(code) }
-                    } else null,
-                    zoomRatio = zoomRatio // <--- Pass Zoom
+                    } else null
                 )
 
-                // 2. Overlay (Scanning Box)
+                // 2. Overlay
                 Box(
                     modifier = Modifier
                         .size(280.dp)
@@ -98,14 +100,31 @@ fun ScanScreen(
                         .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp))
                 )
 
-                // 3. Mode Selector & Shutter
+                // 3. Controls (Zoom + Mode + Shutter)
                 Column(
                     modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 16.dp)
-                        .height(200.dp),
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    // Zoom Slider
+                    if (viewModel.scanMode != ScanMode.BARCODE) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 32.dp).background(Color.Black.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                        ) {
+                            Text("1x", color = Color.White, modifier = Modifier.padding(start = 8.dp))
+                            Slider(
+                                value = zoomRatio,
+                                onValueChange = { zoomRatio = it },
+                                valueRange = 1f..4f,
+                                modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
+                            )
+                            Text("4x", color = Color.White, modifier = Modifier.padding(end = 8.dp))
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
                     // Mode Tabs
                     Row(
                         modifier = Modifier
@@ -113,7 +132,6 @@ fun ScanScreen(
                             .padding(8.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Text("Zoom", color = Color.White, style = MaterialTheme.typography.labelSmall)
                         ScanMode.values().forEach { mode ->
                             Text(
                                 text = mode.name,
@@ -128,7 +146,7 @@ fun ScanScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Shutter Button (Only for Food/Text)
+                    // Shutter Button
                     if (viewModel.scanMode != ScanMode.BARCODE) {
                         Button(
                             onClick = {
@@ -150,12 +168,12 @@ fun ScanScreen(
                 Text(stringResource(R.string.scan_permission_rationale), modifier = Modifier.align(Alignment.Center))
             }
 
-            // 4. Loading Indicator
+            // 4. Loading
             if (viewModel.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
 
-            // 5. Error Banner
+            // 5. Error
             AnimatedVisibility(
                 visible = viewModel.errorMessage != null,
                 enter = slideInVertically { it } + fadeIn(),
@@ -186,28 +204,22 @@ fun ScanScreen(
                     var expanded by remember { mutableStateOf(false) }
 
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "Edit & Save",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-
+                        Text("Edit & Save", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // --- 1. Smart Name Input (Autocomplete) ---
+                        // Smart Name Input
                         Box(modifier = Modifier.fillMaxWidth()) {
                             OutlinedTextField(
                                 value = editedName,
                                 onValueChange = {
                                     editedName = it
-                                    viewModel.onEditNameChange(it) // Trigger API Search
+                                    viewModel.onEditNameChange(it)
                                     expanded = true
                                 },
                                 label = { Text("Food Name") },
                                 modifier = Modifier.fillMaxWidth()
                             )
 
-                            // Suggestions Dropdown
                             DropdownMenu(
                                 expanded = expanded && viewModel.nameSuggestions.isNotEmpty(),
                                 onDismissRequest = { expanded = false },
@@ -222,7 +234,6 @@ fun ScanScreen(
                                             }
                                         },
                                         onClick = {
-                                            // Auto-fill the data
                                             editedName = suggestion.name
                                             editedCalories = suggestion.calories.toString()
                                             viewModel.onSuggestionSelected(suggestion)
@@ -235,40 +246,24 @@ fun ScanScreen(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // --- 2. Calories Input ---
+                        // Calories Input
                         OutlinedTextField(
                             value = editedCalories,
                             onValueChange = { editedCalories = it },
                             label = { Text("Calories (kcal)") },
-                            modifier = Modifier.fillMaxWidth(),
-                            // keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                            modifier = Modifier.fillMaxWidth()
                         )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        // Show Score if available
-                        if (product.nutriScore != null) {
-                            Text(
-                                text = "Nutri-Score: ${product.nutriScore.uppercase()}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.Gray
-                            )
-                        }
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // --- 3. Save Button ---
+                        // Save Button
                         Button(
                             onClick = {
                                 val finalProduct = viewModel.scannedProduct?.copy(
                                     name = editedName,
                                     calories = editedCalories.toIntOrNull() ?: 0
                                 )
-
-                                if (finalProduct != null) {
-                                    viewModel.saveScannedFood(finalProduct)
-                                }
-
+                                if (finalProduct != null) viewModel.saveScannedFood(finalProduct)
                                 viewModel.resetScanner()
                                 onBackClick()
                             },
@@ -276,7 +271,6 @@ fun ScanScreen(
                         ) {
                             Text("Save to Diary")
                         }
-
                         Spacer(modifier = Modifier.height(32.dp))
                     }
                 }

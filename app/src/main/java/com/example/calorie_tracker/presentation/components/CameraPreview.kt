@@ -21,9 +21,9 @@ import java.util.concurrent.Executors
 @Composable
 fun CameraPreview(
     modifier: Modifier = Modifier,
-    imageCapture: ImageCapture, // We pass this in so the Screen can trigger it
-    analyzer: ImageAnalysis.Analyzer? = null, // Optional: Only used for Barcode
-    zoomRatio: Float = 1f // --- NEW PARAMETER ---
+    imageCapture: ImageCapture,
+    analyzer: ImageAnalysis.Analyzer? = null,
+    zoomRatio: Float = 1f
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -44,15 +44,15 @@ fun CameraPreview(
 
             cameraProviderFuture.addListener({
                 val cameraProvider = cameraProviderFuture.get()
-
                 val preview = Preview.Builder().build().also {
                     it.setSurfaceProvider(previewView.surfaceProvider)
                 }
-
                 val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
                 try {
                     cameraProvider.unbindAll()
+
+                    // Bind based on mode (Barcode vs Photo)
                     val camera = if (analyzer != null) {
                         val imageAnalysis = ImageAnalysis.Builder()
                             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
@@ -75,7 +75,7 @@ fun CameraPreview(
                         )
                     }
 
-                    // --- NEW: Apply Zoom ---
+                    // Apply Zoom
                     camera.cameraControl.setZoomRatio(zoomRatio)
 
                 } catch (exc: Exception) {
@@ -86,7 +86,6 @@ fun CameraPreview(
     )
 }
 
-// Helper function to actually take the picture
 fun takePhoto(
     context: Context,
     imageCapture: ImageCapture,

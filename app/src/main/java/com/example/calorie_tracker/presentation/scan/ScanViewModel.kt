@@ -22,6 +22,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.io.File
 import javax.inject.Inject
 
@@ -40,7 +41,7 @@ class ScanViewModel @Inject constructor(
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
 
-    // Autocomplete State (NEW)
+    // Autocomplete State
     var nameSuggestions by mutableStateOf<List<FoodProduct>>(emptyList())
     var isSearchingSuggestions by mutableStateOf(false)
 
@@ -57,7 +58,7 @@ class ScanViewModel @Inject constructor(
         fetchProduct(barcode)
     }
 
-    // --- 2. Photo Logic ---
+    // --- 2. Photo Logic (Coroutines) ---
     fun onPhotoCaptured(file: File, context: Context) {
         isLoading = true
         errorMessage = null
@@ -78,7 +79,7 @@ class ScanViewModel @Inject constructor(
         }
     }
 
-    // --- 3. Autocomplete Logic (NEW) ---
+    // --- 3. Autocomplete Logic ---
     fun onEditNameChange(query: String) {
         if (query.length < 3) {
             nameSuggestions = emptyList()
@@ -87,91 +88,91 @@ class ScanViewModel @Inject constructor(
 
         viewModelScope.launch {
             isSearchingSuggestions = true
-            delay(500) // Debounce: Wait 500ms before searching
+            delay(500) // Debounce
 
             when (val result = searchFoodUC(query)) {
                 is Resource.Success -> {
                     nameSuggestions = result.data ?: emptyList()
                     isSearchingSuggestions = false
                 }
-                is Resource.Error -> {
-                    isSearchingSuggestions = false
-                }
+                is Resource.Error -> isSearchingSuggestions = false
                 is Resource.Loading -> isSearchingSuggestions = true
             }
         }
     }
 
     fun onSuggestionSelected(product: FoodProduct) {
-        // Update the popup with the selected suggestion
         scannedProduct = product.copy(
             name = product.name,
             calories = product.calories,
             brand = product.brand,
             nutriScore = product.nutriScore
         )
-        nameSuggestions = emptyList() // Hide dropdown
+        nameSuggestions = emptyList()
     }
 
-    // --- ML Kit Logic ---
-    private fun analyzeImageLabels(image: InputImage) {
-        val labeler = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
-        labeler.process(image)
-            .addOnSuccessListener { labels ->
-                val topLabels = labels.sortedByDescending { it.confidence }.take(3)
-                if (topLabels.isNotEmpty()) {
-                    val bestGuess = topLabels.first().text
-                    performSearch(bestGuess)
-                } else {
-                    showError("Could not identify food.")
-                }
+    // --- ML Kit Logic (Using await() - No Listeners) ---
+    private suspend fun analyzeImageLabels(image: InputImage) {
+        try {
+            val labeler = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
+            val labels = labeler.process(image).await() // <--- Coroutine Magic
+
+            val topLabels = labels.sortedByDescending { it.confidence }.take(3)
+            if (topLabels.isNotEmpty()) {
+                val bestGuess = topLabels.first().text
+                Log.d(TAG, "AI Label: $bestGuess")
+                performSearch(bestGuess)
+            } else {
+                showError("Could not identify food.")
             }
-            .addOnFailureListener { e -> showError("AI Error: ${e.message}") }
+        } catch (e: Exception) {
+            showError("AI Error: ${e.message}")
+        }
     }
 
-    private fun analyzeText(image: InputImage) {
-        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-        recognizer.process(image)
-            .addOnSuccessListener { visionText ->
-                val rawText = visionText.text
-                Log.d(TAG, "OCR Raw Text:\n$rawText")
+    private suspend fun analyzeText(image: InputImage) {
+        try {
+            val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+            val visionText = recognizer.process(image).await() // <--- Coroutine Magic
 
-                val calories = parseNutritionText(rawText)
+            val rawText = visionText.text
+            Log.d(TAG, "OCR Raw Text:\n$rawText")
 
-                if (calories > 0) {
-                    scannedProduct = FoodProduct(
-                        name = "Scanned Nutrition Label",
-                        brand = "Custom Entry",
-                        calories = calories,
-                        protein = 0.0,
-                        carbs = 0.0,
-                        fat = 0.0,
-                        imageUrl = null,
-                        barcode = null,
-                        nutriScore = null,
-                        novaGroup = null,
-                        isHighSugar = false
-                    )
-                    isLoading = false
+            val calories = parseNutritionText(rawText)
+
+            if (calories > 0) {
+                scannedProduct = FoodProduct(
+                    name = "Scanned Nutrition Label",
+                    brand = "Custom Entry",
+                    calories = calories,
+                    protein = 0.0, carbs = 0.0, fat = 0.0,
+                    imageUrl = null, barcode = null, nutriScore = null, novaGroup = null, isHighSugar = false
+                )
+                isLoading = false
+            } else {
+                // SMART FALLBACK: Try to find the Brand Name
+                val possibleBrand = visionText.textBlocks
+                    .maxByOrNull { it.boundingBox?.height() ?: 0 } // Biggest text is usually brand
+                    ?.text?.replace("\n", " ")?.take(30)
+
+                if (!possibleBrand.isNullOrBlank()) {
+                    Log.d(TAG, "No calories found. Searching for brand: $possibleBrand")
+                    performSearch(possibleBrand)
                 } else {
-                    // Fallback to manual entry
+                    // Total failure -> Manual Entry
                     scannedProduct = FoodProduct(
                         name = "Unknown Food",
                         brand = "Manual Entry",
                         calories = 0,
-                        protein = 0.0,
-                        carbs = 0.0,
-                        fat = 0.0,
-                        imageUrl = null,
-                        barcode = null,
-                        nutriScore = null,
-                        novaGroup = null,
-                        isHighSugar = false
+                        protein = 0.0, carbs = 0.0, fat = 0.0,
+                        imageUrl = null, barcode = null, nutriScore = null, novaGroup = null, isHighSugar = false
                     )
                     isLoading = false
                 }
             }
-            .addOnFailureListener { e -> showError("Text Error: ${e.message}") }
+        } catch (e: Exception) {
+            showError("Text Error: ${e.message}")
+        }
     }
 
     private fun parseNutritionText(text: String): Int {
