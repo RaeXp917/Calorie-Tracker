@@ -39,3 +39,8 @@ data class NutrientLevelsDto(
     @SerializedName("sugars") val sugarLevel: String?,
     @SerializedName("salt") val saltLevel: String?
 )
+
+data class OpenFoodFactsSearchResponse(
+    @SerializedName("products") val products: List<ProductDto>?,
+    @SerializedName("count") val count: Int?
+)

@@ -9,4 +9,10 @@ interface OpenFoodFactsApi {
     suspend fun getProductByBarcode(
         @Path("barcode") barcode: String
     ): OpenFoodFactsResponse
+
+    @GET("cgi/search.pl?search_simple=1&action=process&json=1")
+    suspend fun searchProductsByName(
+        @retrofit2.http.Query("search_terms") query: String
+    ): com.example.calorie_tracker.data.remote.dto.OpenFoodFactsSearchResponse
+
 }

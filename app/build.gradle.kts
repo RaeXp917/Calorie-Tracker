@@ -65,6 +65,12 @@ dependencies {
     // 3. ML Kit (Google's brain for reading Barcodes)
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
 
+    // ML Kit - Image Labeling (To recognize "Apple", "Can", "Food")
+    implementation("com.google.mlkit:image-labeling:17.0.7")
+
+    // ML Kit - Text Recognition (To read Nutrition Tables)
+    implementation("com.google.mlkit:text-recognition:16.0.0")
+
     // 4. Hilt (For Dependency Injection - connecting files)
     implementation("com.google.dagger:hilt-android:2.51")
     kapt("com.google.dagger:hilt-android-compiler:2.51")
@@ -88,6 +94,18 @@ dependencies {
 
     // 10. AppCompat (For Locale support)
     implementation("androidx.appcompat:appcompat:1.6.1")
+
+    // Text Recognition (For Nutrition Tables)
+    implementation("com.google.mlkit:text-recognition:16.0.0")
+
+    // Room Database (Local Storage)
+    val roomVersion = "2.6.1"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion") // For Coroutines
+    kapt("androidx.room:room-compiler:$roomVersion")
+
+    // Use the Play Services version (Better, smaller app size, auto-updates)
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
 
     // Test dependencies
     testImplementation(libs.junit)

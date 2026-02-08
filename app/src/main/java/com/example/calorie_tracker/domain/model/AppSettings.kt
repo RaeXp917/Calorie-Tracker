@@ -9,6 +9,7 @@ data class AppSettings(
     // @PrimaryKey
     val id: String = "default",
     val colorPrimary: String = "0xFF6200EE",
+    val colorTest: String = "0xFF000000", //prob black
     val colorSecondary: String = "0xFF03DAC5",
     val colorBackground: String = "0xFFFFFFFF",
     val colorSurface: String = "0xFFFFFFFF",

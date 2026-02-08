@@ -1,7 +1,11 @@
 package com.example.calorie_tracker.presentation.components
 
+import android.content.Context
 import android.view.ViewGroup
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -11,11 +15,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import java.io.File
+import java.util.concurrent.Executors
 
 @Composable
 fun CameraPreview(
     modifier: Modifier = Modifier,
-    onBind: (ProcessCameraProvider) -> Unit = {}
+    imageCapture: ImageCapture, // We pass this in so the Screen can trigger it
+    analyzer: ImageAnalysis.Analyzer? = null, // Optional: Only used for Barcode
+    zoomRatio: Float = 1f // --- NEW PARAMETER ---
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -45,16 +53,59 @@ fun CameraPreview(
 
                 try {
                     cameraProvider.unbindAll()
-                    cameraProvider.bindToLifecycle(
-                        lifecycleOwner,
-                        cameraSelector,
-                        preview
-                    )
-                    onBind(cameraProvider)
+                    val camera = if (analyzer != null) {
+                        val imageAnalysis = ImageAnalysis.Builder()
+                            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                            .build()
+                        imageAnalysis.setAnalyzer(Executors.newSingleThreadExecutor(), analyzer)
+
+                        cameraProvider.bindToLifecycle(
+                            lifecycleOwner,
+                            cameraSelector,
+                            preview,
+                            imageCapture,
+                            imageAnalysis
+                        )
+                    } else {
+                        cameraProvider.bindToLifecycle(
+                            lifecycleOwner,
+                            cameraSelector,
+                            preview,
+                            imageCapture
+                        )
+                    }
+
+                    // --- NEW: Apply Zoom ---
+                    camera.cameraControl.setZoomRatio(zoomRatio)
+
                 } catch (exc: Exception) {
                     exc.printStackTrace()
                 }
             }, ContextCompat.getMainExecutor(context))
+        }
+    )
+}
+
+// Helper function to actually take the picture
+fun takePhoto(
+    context: Context,
+    imageCapture: ImageCapture,
+    onImageCaptured: (File) -> Unit
+) {
+    val file = File(context.cacheDir, "scanned_food.jpg")
+    val outputOptions = ImageCapture.OutputFileOptions.Builder(file).build()
+
+    imageCapture.takePicture(
+        outputOptions,
+        ContextCompat.getMainExecutor(context),
+        object : ImageCapture.OnImageSavedCallback {
+            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                onImageCaptured(file)
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+                exception.printStackTrace()
+            }
         }
     )
 }

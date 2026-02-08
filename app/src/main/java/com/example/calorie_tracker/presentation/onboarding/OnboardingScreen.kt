@@ -100,14 +100,14 @@ fun LanguageStep(viewModel: OnboardingViewModel) {
         FilledButton(
             text = stringResource(R.string.onboarding_language_english),
             onClick = {
-                viewModel.onLanguageSelected("en", context)
+                viewModel.onLanguageSelected("Eng", context)
             },
             modifier = Modifier.fillMaxWidth(),
-            backgroundColor = if (viewModel.selectedLanguage == "en")
+            backgroundColor = if (viewModel.selectedLanguage == "Eng")
                 MaterialTheme.colorScheme.primary
             else
                 MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = if (viewModel.selectedLanguage == "en")
+            contentColor = if (viewModel.selectedLanguage == "Eng")
                 MaterialTheme.colorScheme.onPrimary
             else
                 MaterialTheme.colorScheme.onSurfaceVariant,
@@ -117,14 +117,14 @@ fun LanguageStep(viewModel: OnboardingViewModel) {
         FilledButton(
             text = stringResource(R.string.onboarding_language_greek),
             onClick = {
-                viewModel.onLanguageSelected("el", context)
+                viewModel.onLanguageSelected("Gr", context)
             },
             modifier = Modifier.fillMaxWidth(),
-            backgroundColor = if (viewModel.selectedLanguage == "el")
+            backgroundColor = if (viewModel.selectedLanguage == "Gr")
                 MaterialTheme.colorScheme.primary
             else
                 MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = if (viewModel.selectedLanguage == "el")
+            contentColor = if (viewModel.selectedLanguage == "Gr")
                 MaterialTheme.colorScheme.onPrimary
             else
                 MaterialTheme.colorScheme.onSurfaceVariant,

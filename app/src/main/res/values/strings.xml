@@ -49,4 +49,12 @@
     <string name="loading">Loading…</string>
     <string name="error">Error</string>
     <string name="retry">Retry</string>
+
+    <!-- Scanner -->
+    <string name="scan_permission_rationale">Camera permission is needed to scan barcodes.</string>
+    <string name="scan_searching">Searching...</string>
+    <string name="scan_error">Product not found</string>
+    <string name="scan_add_manually">Add Manually</string>
+
+
 </resources>

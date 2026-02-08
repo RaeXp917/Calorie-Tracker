@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
                     // 2. The Navigation Graph (The Map of your app)
                     NavHost(
                         navController = navController,
-                        startDestination = "onboarding", // Start here
+                        startDestination = "dashboard", //proper start is on onboarding but for testing purposes we start on dashboard
                         modifier = Modifier.padding(innerPadding)
                     ) {
 
@@ -48,12 +48,19 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // Screen B: Dashboard (Main App)
+                        // Screen B: Dashboard
                         composable("dashboard") {
                             DashboardScreen(
                                 onScanClick = {
-                                    // TODO: We will add the Camera Screen navigation here next
+                                    navController.navigate("scan")
                                 }
+                            )
+                        }
+
+                        // Screen C: Scan (Add this new block)
+                        composable("scan") {
+                            com.example.calorie_tracker.presentation.scan.ScanScreen(
+                                onBackClick = { navController.popBackStack() }
                             )
                         }
                     }

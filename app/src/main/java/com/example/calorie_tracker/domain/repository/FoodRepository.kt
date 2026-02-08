@@ -5,4 +5,7 @@ import com.example.calorie_tracker.common.Resource
 
 interface FoodRepository {
     suspend fun getFoodByBarcode(barcode: String): Resource<FoodProduct>
+    suspend fun insertFood(food: FoodProduct)
+    suspend fun searchFoodByName(query: String): Resource<List<FoodProduct>>
+
 }

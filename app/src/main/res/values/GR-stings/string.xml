@@ -49,4 +49,12 @@
     <string name="loading">Φόρτωση…</string>
     <string name="error">Σφάλμα</string>
     <string name="retry">Δοκιμάστε ξανά</string>
+
+    <!-- Scanner -->
+    <string name="scan_permission_rationale">Απαιτείται άδεια κάμερας για τη σάρωση.</string>
+    <string name="scan_searching">Αναζήτηση...</string>
+    <string name="scan_error">Το προϊόν δεν βρέθηκε</string>
+    <string name="scan_add_manually">Προσθήκη Χειροκίνητα</string>
+
+
 </resources>
