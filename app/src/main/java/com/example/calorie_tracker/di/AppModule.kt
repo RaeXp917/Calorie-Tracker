@@ -55,7 +55,9 @@ object AppModule {
             app,
             AppDatabase::class.java,
             "calorie_tracker_db"
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides

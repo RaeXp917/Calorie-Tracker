@@ -51,10 +51,70 @@
     <string name="retry">Retry</string>
 
     <!-- Scanner -->
+    <string name="scan_title">Scanner</string>
+    <string name="scan_back">Back</string>
     <string name="scan_permission_rationale">Camera permission is needed to scan barcodes.</string>
     <string name="scan_searching">Searching...</string>
     <string name="scan_error">Product not found</string>
     <string name="scan_add_manually">Add Manually</string>
-
+    <string name="scan_mode_barcode">BARCODE</string>
+    <string name="scan_mode_food">FOOD</string>
+    <string name="scan_mode_text">TEXT</string>
+    <string name="scan_zoom_min">1x</string>
+    <string name="scan_zoom_max">4x</string>
+    
+    <!-- Scanner Bottom Sheet -->
+    <string name="scan_edit_save_title">Edit &amp; Save</string>
+    <string name="scan_food_name_label">Food Name</string>
+    <string name="scan_calories_label">Calories (kcal)</string>
+    <string name="scan_save_button">Save to Diary</string>
+    <string name="scan_brand_label">Brand: %s</string>
+    <string name="scan_calories_display">%d kcal</string>
+    
+    <!-- Nutrition Breakdown -->
+    <string name="nutrition_breakdown_title">NUTRITION BREAKDOWN</string>
+    <string name="nutrition_total_weight">TOTAL WEIGHT</string>
+    <string name="nutrition_energy">ENERGY</string>
+    <string name="nutrition_protein">PROTEIN</string>
+    <string name="nutrition_carbs">CARBS</string>
+    <string name="nutrition_fat">FAT</string>
+    <string name="nutrition_grams">%dg</string>
+    <string name="nutrition_grams_label">%d g</string>
+    <string name="nutrition_kcal_label">%d kcal</string>
+    
+    <!-- Portion Size -->
+    <string name="portion_size_title">Portion Size</string>
+    <string name="portion_size_grams">Grams</string>
+    <string name="portion_size_serving">1 Serving</string>
+    <string name="portion_size_custom">Custom</string>
+    <string name="portion_size_100g">100g (Reference)</string>
+    
+    <!-- Manual Edit -->
+    <string name="manual_edit_title">Manual Correction</string>
+    <string name="manual_edit_calories">Calories (kcal)</string>
+    <string name="manual_edit_protein">Protein (g)</string>
+    <string name="manual_edit_carbs">Carbs (g)</string>
+    <string name="manual_edit_fat">Fat (g)</string>
+    
+    <!-- Scanner Messages -->
+    <string name="scan_scanned_nutrition_label">Scanned Nutrition Label</string>
+    <string name="scan_custom_entry">Custom Entry</string>
+    <string name="scan_unknown_food">Unknown Food</string>
+    <string name="scan_manual_entry">Manual Entry</string>
+    <string name="scan_error_processing_image">Error processing image: %s</string>
+    <string name="scan_error_could_not_identify">Could not identify food.</string>
+    <string name="scan_error_text_recognition">Text Error: %s</string>
+    <string name="scan_error_search_failed">Search failed: %s</string>
+    <string name="scan_error_unknown">Unknown Error</string>
+    <string name="scan_error_ai_saw_no_food">AI saw \'%s\', but no food found.</string>
+    
+    <!-- Error Messages -->
+    <string name="error_empty_query">Empty query</string>
+    <string name="error_invalid_barcode">Invalid Barcode</string>
+    <string name="error_product_not_found">Product not found</string>
+    <string name="error_network">Network Error: %s</string>
+    <string name="error_no_results">No results found for \'%s\'</string>
+    <string name="error_search">Search Error: %s</string>
+    <string name="error_unknown_product">Unknown</string>
 
 </resources>

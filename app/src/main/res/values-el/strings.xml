@@ -1,0 +1,119 @@
+<resources>
+    <string name="app_name">Καταγραφή Θερμίδων</string>
+
+    <!-- Onboarding Screen -->
+    <string name="onboarding_gender_title">Ποιο είναι το φύλο σου;</string>
+    <string name="onboarding_gender_male">Άντρας</string>
+    <string name="onboarding_gender_female">Γυναίκα</string>
+    <string name="onboarding_gender_selected">Επιλέχθηκε: %s</string>
+    <string name="onboarding_gender_none">Κανένα</string>
+
+    <string name="onboarding_age_title">Πόσο χρονών είσαι;</string>
+    <string name="onboarding_age_years">%d χρονών</string>
+
+    <string name="onboarding_height_title">Πόσο ψηλός/ή είσαι;</string>
+    <string name="onboarding_height_value">%d εκ</string>
+
+    <string name="onboarding_weight_title">Τρέχον βάρος;</string>
+    <string name="onboarding_weight_value">%d κιλά</string>
+
+    <string name="onboarding_goal_title">Ποιος είναι ο στόχος σου;</string>
+    <string name="onboarding_goal_lose">Απώλεια Βάρους</string>
+    <string name="onboarding_goal_maintain">Διατήρηση</string>
+    <string name="onboarding_goal_gain">Αύξηση Μυϊκής Μάζας</string>
+    <string name="onboarding_goal_selected">Επιλέχθηκε: %s</string>
+
+    <string name="onboarding_result_title">Το Πλάνο Σου</string>
+    <string name="onboarding_result_calories">Ημερήσιες Θερμίδες: %d θερμίδες</string>
+    <string name="onboarding_result_protein">Πρωτεΐνη: %d γρ</string>
+
+    <string name="onboarding_language_title">Επιλέξτε τη γλώσσα σας</string>
+    <string name="onboarding_language_english">English</string>
+    <string name="onboarding_language_greek">Ελληνικά</string>
+
+    <string name="button_next">Επόμενο</string>
+    <string name="button_finish">Ολοκλήρωση</string>
+    <string name="button_back">Πίσω</string>
+
+    <!-- Dashboard Screen -->
+    <string name="dashboard_title">Σύνοψη Σήμερα</string>
+    <string name="dashboard_calories_left">Θερμίδες Απομένουν</string>
+    <string name="dashboard_scan_food">Σάρωση Τροφής</string>
+
+    <string name="macro_protein">Πρωτεΐνη</string>
+    <string name="macro_carbs">Υδατάνθρακες</string>
+    <string name="macro_fat">Λίπος</string>
+    <string name="macro_value">%dγρ / %dγρ</string>
+
+    <!-- Common -->
+    <string name="loading">Φόρτωση…</string>
+    <string name="error">Σφάλμα</string>
+    <string name="retry">Δοκιμάστε ξανά</string>
+
+    <!-- Scanner -->
+    <string name="scan_title">Σάρωση</string>
+    <string name="scan_back">Πίσω</string>
+    <string name="scan_permission_rationale">Απαιτείται άδεια κάμερας για τη σάρωση.</string>
+    <string name="scan_searching">Αναζήτηση...</string>
+    <string name="scan_error">Το προϊόν δεν βρέθηκε</string>
+    <string name="scan_add_manually">Προσθήκη Χειροκίνητα</string>
+    <string name="scan_mode_barcode">BARCODE</string>
+    <string name="scan_mode_food">FOOD</string>
+    <string name="scan_mode_text">TEXT</string>
+    <string name="scan_zoom_min">1x</string>
+    <string name="scan_zoom_max">4x</string>
+    
+    <!-- Scanner Bottom Sheet -->
+    <string name="scan_edit_save_title">Επεξεργασία &amp; Αποθήκευση</string>
+    <string name="scan_food_name_label">Όνομα Τροφής</string>
+    <string name="scan_calories_label">Θερμίδες (kcal)</string>
+    <string name="scan_save_button">Αποθήκευση στο Ημερολόγιο</string>
+    <string name="scan_brand_label">Μάρκα: %s</string>
+    <string name="scan_calories_display">%d kcal</string>
+    
+    <!-- Nutrition Breakdown -->
+    <string name="nutrition_breakdown_title">ΑΝΑΛΥΣΗ ΔΙΑΤΡΟΦΗΣ</string>
+    <string name="nutrition_total_weight">ΣΥΝΟΛΙΚΟ ΒΑΡΟΣ</string>
+    <string name="nutrition_energy">ΕΝΕΡΓΕΙΑ</string>
+    <string name="nutrition_protein">ΠΡΩΤΕΪΝΗ</string>
+    <string name="nutrition_carbs">ΥΔΑΤΑΝΘΡΑΚΕΣ</string>
+    <string name="nutrition_fat">ΛΙΠΟΣ</string>
+    <string name="nutrition_grams">%dγρ</string>
+    <string name="nutrition_grams_label">%d γρ</string>
+    <string name="nutrition_kcal_label">%d θερμίδες</string>
+    
+    <!-- Portion Size -->
+    <string name="portion_size_title">Μέγεθος Μερίδας</string>
+    <string name="portion_size_grams">Γραμμάρια</string>
+    <string name="portion_size_serving">1 Μερίδα</string>
+    <string name="portion_size_custom">Προσαρμοσμένο</string>
+    <string name="portion_size_100g">100γρ (Αναφορά)</string>
+    
+    <!-- Manual Edit -->
+    <string name="manual_edit_title">Χειροκίνητη Διόρθωση</string>
+    <string name="manual_edit_calories">Θερμίδες (kcal)</string>
+    <string name="manual_edit_protein">Πρωτεΐνη (γρ)</string>
+    <string name="manual_edit_carbs">Υδατάνθρακες (γρ)</string>
+    <string name="manual_edit_fat">Λίπος (γρ)</string>
+    
+    <!-- Scanner Messages -->
+    <string name="scan_scanned_nutrition_label">Σαρωμένη Ετικέτα Διατροφής</string>
+    <string name="scan_custom_entry">Προσαρμοσμένη Καταχώρηση</string>
+    <string name="scan_unknown_food">Άγνωστη Τροφή</string>
+    <string name="scan_manual_entry">Χειροκίνητη Καταχώρηση</string>
+    <string name="scan_error_processing_image">Σφάλμα επεξεργασίας εικόνας: %s</string>
+    <string name="scan_error_could_not_identify">Δεν ήταν δυνατή η αναγνώριση τροφής.</string>
+    <string name="scan_error_text_recognition">Σφάλμα αναγνώρισης κειμένου: %s</string>
+    <string name="scan_error_search_failed">Αποτυχία αναζήτησης: %s</string>
+    <string name="scan_error_unknown">Άγνωστο Σφάλμα</string>
+    <string name="scan_error_ai_saw_no_food">Το AI είδε \'%s\', αλλά δεν βρέθηκε τροφή.</string>
+    
+    <!-- Error Messages -->
+    <string name="error_empty_query">Κενό ερώτημα</string>
+    <string name="error_invalid_barcode">Μη έγκυρος γραμμωτός κώδικας</string>
+    <string name="error_product_not_found">Το προϊόν δεν βρέθηκε</string>
+    <string name="error_network">Σφάλμα Δικτύου: %s</string>
+    <string name="error_no_results">Δεν βρέθηκαν αποτελέσματα για \'%s\'</string>
+    <string name="error_search">Σφάλμα Αναζήτησης: %s</string>
+    <string name="error_unknown_product">Άγνωστο</string>
+</resources>

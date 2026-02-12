@@ -19,8 +19,10 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
     var currentStep by mutableStateOf(0)
         private set
 
-    // Language selection
-    var selectedLanguage by mutableStateOf("en")
+    // Language selection - Initialize from device locale
+    var selectedLanguage by mutableStateOf(
+        Locale.getDefault().language.takeIf { it in listOf("en", "el") } ?: "en"
+    )
         private set
 
     // User Data
@@ -43,17 +45,20 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    // Language selection
+    // Language selection - Fixed: Use proper language codes
     fun onLanguageSelected(languageCode: String, context: Context) {
         selectedLanguage = languageCode
         setLocale(languageCode)
-
-        // Recreate activity to apply new language
-        // Note: The activity recreation will be handled by MainActivity
     }
 
     private fun setLocale(languageCode: String) {
-        val localeList = LocaleListCompat.forLanguageTags(languageCode)
+        // Map display codes to actual locale codes
+        val localeCode = when (languageCode) {
+            "en", "Eng" -> "en"
+            "el", "Gr" -> "el"
+            else -> "en"
+        }
+        val localeList = LocaleListCompat.forLanguageTags(localeCode)
         AppCompatDelegate.setApplicationLocales(localeList)
     }
 

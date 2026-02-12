@@ -8,17 +8,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.calorie_tracker.R
 import com.example.calorie_tracker.common.Resource
 import com.example.calorie_tracker.domain.model.FoodProduct
+import com.example.calorie_tracker.domain.model.MealType
 import com.example.calorie_tracker.domain.use_case.AddFoodUC
 import com.example.calorie_tracker.domain.use_case.GetFoodByBarcodeUC
 import com.example.calorie_tracker.domain.use_case.SearchFoodUC
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.label.ImageLabeling
-import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -26,24 +27,27 @@ import kotlinx.coroutines.tasks.await
 import java.io.File
 import javax.inject.Inject
 
-enum class ScanMode { BARCODE, FOOD, TEXT }
+// Removed FOOD mode
+enum class ScanMode { BARCODE, TEXT }
 
 @HiltViewModel
 class ScanViewModel @Inject constructor(
     private val getFoodByBarcodeUC: GetFoodByBarcodeUC,
     private val addFoodUC: AddFoodUC,
-    private val searchFoodUC: SearchFoodUC
+    private val searchFoodUC: SearchFoodUC,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    // UI State
     var scanMode by mutableStateOf(ScanMode.BARCODE)
     var scannedProduct by mutableStateOf<FoodProduct?>(null)
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
 
-    // Autocomplete State
     var nameSuggestions by mutableStateOf<List<FoodProduct>>(emptyList())
     var isSearchingSuggestions by mutableStateOf(false)
+
+    // This is set when navigating to the screen
+    var selectedMealType by mutableStateOf(MealType.SNACK)
 
     private var lastScannedBarcode: String? = null
     private val TAG = "[SCAN_DEBUG]"
@@ -58,23 +62,18 @@ class ScanViewModel @Inject constructor(
         fetchProduct(barcode)
     }
 
-    // --- 2. Photo Logic (Coroutines) ---
+    // --- 2. Photo Logic (Text Only) ---
     fun onPhotoCaptured(file: File, context: Context) {
         isLoading = true
         errorMessage = null
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                Log.d(TAG, "Photo captured. Mode: $scanMode")
                 val image = InputImage.fromFilePath(context, Uri.fromFile(file))
-
-                if (scanMode == ScanMode.FOOD) {
-                    analyzeImageLabels(image)
-                } else if (scanMode == ScanMode.TEXT) {
-                    analyzeText(image)
-                }
+                // Only Text analysis now
+                analyzeText(image)
             } catch (e: Exception) {
-                showError("Error processing image: ${e.message}")
+                showError(context.getString(R.string.scan_error_processing_image, e.message ?: ""))
             }
         }
     }
@@ -88,8 +87,7 @@ class ScanViewModel @Inject constructor(
 
         viewModelScope.launch {
             isSearchingSuggestions = true
-            delay(500) // Debounce
-
+            delay(500)
             when (val result = searchFoodUC(query)) {
                 is Resource.Success -> {
                     nameSuggestions = result.data ?: emptyList()
@@ -111,95 +109,77 @@ class ScanViewModel @Inject constructor(
         nameSuggestions = emptyList()
     }
 
-    // --- ML Kit Logic (Using await() - No Listeners) ---
-    private suspend fun analyzeImageLabels(image: InputImage) {
-        try {
-            val labeler = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
-            val labels = labeler.process(image).await() // <--- Coroutine Magic
-
-            val topLabels = labels.sortedByDescending { it.confidence }.take(3)
-            if (topLabels.isNotEmpty()) {
-                val bestGuess = topLabels.first().text
-                Log.d(TAG, "AI Label: $bestGuess")
-                performSearch(bestGuess)
-            } else {
-                showError("Could not identify food.")
-            }
-        } catch (e: Exception) {
-            showError("AI Error: ${e.message}")
-        }
+    fun startManualEntry() {
+        scannedProduct = FoodProduct(
+            name = "",
+            brand = "",
+            calories = 0,
+            protein = 0.0, carbs = 0.0, fat = 0.0,
+            imageUrl = null, barcode = null,
+            baseServingSize = 100.0, baseServingUnit = "g", portionSizeGrams = 100,
+            source = "User", nutriScore = null, novaGroup = null, isHighSugar = false
+        )
     }
 
+    // --- ML Kit: Text Recognition ---
     private suspend fun analyzeText(image: InputImage) {
         try {
             val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-            val visionText = recognizer.process(image).await() // <--- Coroutine Magic
-
+            val visionText = recognizer.process(image).await()
             val rawText = visionText.text
-            Log.d(TAG, "OCR Raw Text:\n$rawText")
 
             val calories = parseNutritionText(rawText)
 
             if (calories > 0) {
                 scannedProduct = FoodProduct(
-                    name = "Scanned Nutrition Label",
-                    brand = "Custom Entry",
+                    name = context.getString(R.string.scan_scanned_nutrition_label),
+                    brand = context.getString(R.string.scan_custom_entry),
                     calories = calories,
                     protein = 0.0, carbs = 0.0, fat = 0.0,
-                    imageUrl = null, barcode = null, nutriScore = null, novaGroup = null, isHighSugar = false
+                    imageUrl = null, barcode = null,
+                    baseServingSize = 100.0, baseServingUnit = "g", portionSizeGrams = 100,
+                    source = "User", nutriScore = null, novaGroup = null, isHighSugar = false
                 )
                 isLoading = false
             } else {
-                // SMART FALLBACK: Try to find the Brand Name
                 val possibleBrand = visionText.textBlocks
-                    .maxByOrNull { it.boundingBox?.height() ?: 0 } // Biggest text is usually brand
+                    .maxByOrNull { it.boundingBox?.height() ?: 0 }
                     ?.text?.replace("\n", " ")?.take(30)
 
                 if (!possibleBrand.isNullOrBlank()) {
-                    Log.d(TAG, "No calories found. Searching for brand: $possibleBrand")
                     performSearch(possibleBrand)
                 } else {
-                    // Total failure -> Manual Entry
-                    scannedProduct = FoodProduct(
-                        name = "Unknown Food",
-                        brand = "Manual Entry",
-                        calories = 0,
-                        protein = 0.0, carbs = 0.0, fat = 0.0,
-                        imageUrl = null, barcode = null, nutriScore = null, novaGroup = null, isHighSugar = false
-                    )
+                    startManualEntry() // Fallback to manual
                     isLoading = false
                 }
             }
         } catch (e: Exception) {
-            showError("Text Error: ${e.message}")
+            showError(context.getString(R.string.scan_error_text_recognition, e.message ?: ""))
         }
     }
 
     private fun parseNutritionText(text: String): Int {
         // 1. Slash Pattern (2190 / 524)
-        val slashRegex = Regex("""(\d{3,4})\s*[/|]\s*(\d{2,3})""")
+        val slashRegex = Regex("""(\d{3,4})\s*[a-zA-Z]*\s*[/|]\s*(\d{2,3})""")
         val slashMatch = slashRegex.find(text)
         if (slashMatch != null) {
             val num1 = slashMatch.groupValues[1].toIntOrNull() ?: 0
             val num2 = slashMatch.groupValues[2].toIntOrNull() ?: 0
-            if (num1 > num2) return num2
+            if (num1 > num2 && num1 < num2 * 5) return num2
         }
 
-        // 2. kJ Pattern
+        // 2. kcal Pattern
+        val kcalRegex = Regex("""(\d+)\s*(?:kcal|cal|Wcal|kcl)""", RegexOption.IGNORE_CASE)
+        val kcalMatch = kcalRegex.find(text)
+        if (kcalMatch != null) return kcalMatch.groupValues[1].toIntOrNull() ?: 0
+
+        // 3. kJ Pattern
         val kjRegex = Regex("""(\d+)\s*(?:kJ|kj|KI|Kj)""", RegexOption.IGNORE_CASE)
         val kjMatch = kjRegex.find(text)
         if (kjMatch != null) {
             val kjValue = kjMatch.groupValues[1].toIntOrNull() ?: 0
             return (kjValue / 4.184).toInt()
         }
-
-        // 3. kcal Pattern
-        val kcalRegex = Regex("""(\d+)\s*(?:kcal|cal|Wcal|kcl)""", RegexOption.IGNORE_CASE)
-        val kcalMatch = kcalRegex.find(text)
-        if (kcalMatch != null) {
-            return kcalMatch.groupValues[1].toIntOrNull() ?: 0
-        }
-
         return 0
     }
 
@@ -211,11 +191,14 @@ class ScanViewModel @Inject constructor(
                     if (bestMatch != null) {
                         scannedProduct = bestMatch.copy(name = "AI: ${bestMatch.name}")
                     } else {
-                        showError("AI saw '$query', but no food found.")
+                        startManualEntry()
                     }
                     isLoading = false
                 }
-                is Resource.Error -> showError("Search failed: ${result.message}")
+                is Resource.Error -> {
+                    startManualEntry()
+                    isLoading = false
+                }
                 is Resource.Loading -> isLoading = true
             }
         }
@@ -231,7 +214,7 @@ class ScanViewModel @Inject constructor(
                     isLoading = false
                 }
                 is Resource.Error -> {
-                    showError(result.message ?: "Unknown Error")
+                    showError(result.message ?: context.getString(R.string.scan_error_unknown))
                     lastScannedBarcode = null
                 }
                 is Resource.Loading -> isLoading = true
@@ -239,10 +222,9 @@ class ScanViewModel @Inject constructor(
         }
     }
 
-    private fun showError(msg: String) {
+    fun showError(msg: String) {
         errorMessage = msg
         isLoading = false
-        Log.e(TAG, "Error: $msg")
         viewModelScope.launch {
             delay(3000)
             errorMessage = null
@@ -253,7 +235,7 @@ class ScanViewModel @Inject constructor(
         val food = foodToSave ?: scannedProduct
         food?.let {
             viewModelScope.launch {
-                addFoodUC(it)
+                addFoodUC(it, selectedMealType)
             }
         }
     }
